@@ -1,0 +1,6 @@
+---
+- hosts: agents
+  tasks:
+    - name: update hostname
+      sudo: yes
+      script: sethostname.sh
