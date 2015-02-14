@@ -1,6 +1,15 @@
 ---
 - hosts: agents
   tasks:
+    - name: get sha1 hostname
+      script: sha1hostname.sh
+      register: sh1hostname
+
+    - name: get current hostname
+      shell: hostname
+      register: hostname
+
     - name: update hostname
       sudo: yes
       script: sethostname.sh
+      when: sh1hostname.stdout != hostname.stdout
