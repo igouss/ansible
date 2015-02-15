@@ -5,7 +5,8 @@ if [ $OLD_HOSTNAME != $NEW_HOSTNAME ]
 then
   hostnamectl set-hostname $NEW_HOSTNAME
   sed -i "s/$OLD_HOSTNAME/$NEW_HOSTNAME/g" /etc/hosts
+  echo -n "new HOSTNAME=$NEW_HOSTNAME"
 else
-  echo "HOSTNAME unchanged"
+  echo -n "HOSTNAME unchanged"
 fi
 
