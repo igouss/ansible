@@ -4,12 +4,10 @@
     - name: get sha1 hostname
       script: sha1hostname.sh
       register: sh1hostname
-
-#    - name: get current hostname
-#      shell: hostname
-#      register: hostname
+      tags: base
 
     - name: update hostname
       sudo: yes
       script: sethostname.sh
       when: sh1hostname.stdout != ansible_hostname
+      tags: base
