@@ -1,0 +1,15 @@
+---
+- name: common | Install software 
+  apt: update_cache=yes
+       cache_valid_time=86400
+       name={{ item }}
+       state=latest
+       install_recommends=false
+  sudo: yes
+  with_items:        
+    - build-essential
+    - facter
+    - bash-completion
+    - vim
+    - git
+    - mc
