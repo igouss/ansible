@@ -1,11 +1,14 @@
 ---
+- command: apt-add-repository -y ppa:brightbox/ruby-ng
+  sudo: true
+
 - name: common | Install software 
   apt: update_cache=yes
        cache_valid_time=86400
        name={{ item }}
        state=latest
        install_recommends=false
-  sudo: yes
+  sudo: true
   with_items:        
     - build-essential
     - facter
@@ -13,3 +16,7 @@
     - vim
     - git
     - mc
+    - software-properties-common
+    - ruby2.2
+    - bundler
+    - rubygems
