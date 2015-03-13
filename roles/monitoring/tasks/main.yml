@@ -51,7 +51,36 @@
     - /var/lib/influxdb/wal
   sudo: true
   tags: monitoring
+  notify: restart influxdb
 
-- service: name=influxdb enabled=true state=restarted
+- apt: name={{ item }} state=present
+  with_items:
+    - make 
+    - pbuilder
+    - python-mock 
+    - python-configobj 
+    - python-support 
+    - cdbs
+    - python-utmp
+    - python-psutil
   sudo: true
   tags: monitoring
+
+- git: repo=https://github.com/python-diamond/Diamond.git
+       dest={{ downloadDir }}/Diamond
+  tags: monitoring
+
+- command: make builddeb creates={{ downloadDir }}/Diamond/build/diamond_4.0.114_all.deb chdir={{ downloadDir }}/Diamond
+  tags: monitoring
+
+- apt: deb={{ downloadDir }}/Diamond/build/diamond_4.0.114_all.deb
+  sudo: true
+  tags: monitoring
+
+- copy: src=diamond.conf dest=/etc/diamond/diamond.conf
+  sudo: true
+  tags: monitoring
+- copy: src=collectors dest=/etc/diamond/
+  sudo: true
+  tags: monitoring
+  notify: restart diamond
