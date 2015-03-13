@@ -1,0 +1,10 @@
+- name: restart powerdns
+  service: name= {{ item }}  enabled=true state=restarted
+  with_items:
+    - pdns
+  sudo: true
+  tags: monitoring
+
+
+
+

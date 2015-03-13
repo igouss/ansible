@@ -1,0 +1,4 @@
+---
+- apt: name=nginx
+  tags: web
+  sudo: true

@@ -1,0 +1,80 @@
+---
+- service: name=dnsmasq state=stopped
+  sudo: true
+  tags: dns
+
+- apt: name=dnsmasq state=absent
+  sudo: true
+  tags: dns
+
+- apt: name={{ item }} 
+  with_items:
+    - python-psycopg2
+  sudo: true
+  tags: dns
+
+- local_action: get_url url=https://downloads.powerdns.com/releases/deb/pdns-static_3.4.3-1_amd64.deb dest=/tmp/pdns-static_3.4.3-1_amd64.deb
+  tags: dns
+
+- copy: src=/tmp/pdns-static_3.4.3-1_amd64.deb dest='{{ downloadDir }}/pdns-static_3.4.3-1_amd64.deb'
+  tags: dns
+
+- copy: 
+
+- apt: deb={{ downloadDir }}/pdns-static_3.4.3-1_amd64.deb
+  sudo: true
+  tags: dns
+
+- postgresql_db: name=powerdns
+                 encoding='UTF-8'
+  sudo: true
+  sudo_user: postgres
+  tags: dns
+
+- command: psql -c "DROP USER powerdns;"
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: yes
+  tags: dns
+
+- command: psql -c "CREATE USER powerdns WITH  encrypted password 'apple';"
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: yes
+  tags: dns
+
+
+- copy: src=pdns.conf dest=/etc/powerdns/pdns.conf
+  sudo: true
+  tags: dns
+
+- copy: src=schema.pgsql.sql dest={{ downloadDir }}/schema.pgsql.sql
+  tags: dns
+
+- copy: src=pdns.etc.default dest=/etc/default/pdns
+  sudo: true
+  tags: dns
+
+- command: psql -d powerdns -a -f {{ downloadDir }}/schema.pgsql.sql
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: yes
+  tags: dns
+
+- command: psql -c "ALTER DATABASE powerdns OWNER TO powerdns;"
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: yes
+  tags: dns
+
+- command: psql -c "GRANT ALL PRIVILEGES ON DATABASE powerdns to powerdns;"
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: yes
+  tags: dns
+
+- command: psql -c "GRANT ALL ON comments, comments_id_seq, cryptokeys, cryptokeys_id_seq, domainmetadata, domainmetadata_id_seq, domains, domains_id_seq, records, records_id_seq, supermasters, tsigkeys, tsigkeys_id_seq TO powerdns;" powerdns
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: yes
+  tags: dns
