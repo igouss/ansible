@@ -9,3 +9,6 @@
       when: setHostname
     - include: roles/common/tasks/02-install-basic-software.yml
     - include: roles/common/tasks/io.js.yml
+
+  roles:
+    - { role: monitoring }

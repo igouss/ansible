@@ -1,0 +1,57 @@
+---
+- local_action: get_url url=http://grafanarel.s3.amazonaws.com/grafana-1.9.1.tar.gz dest=/tmp/grafana-1.9.1.tar.gz
+  tags: monitoring
+- local_action: get_url url=https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.tar.gz dest=/tmp/elasticsearch-1.4.4.tar.gz
+  tags: monitoring
+- local_action: get_url url=https://s3.amazonaws.com/influxdb/influxdb_latest_amd64.deb dest=/tmp/influxdb_latest_amd64.deb
+  tags: monitoring
+
+- copy: src=/tmp/grafana-1.9.1.tar.gz dest='{{ downloadDir }}/grafana-1.9.1.tar.gz'
+  tags: monitoring
+- copy: src=/tmp/elasticsearch-1.4.4.tar.gz dest='{{ downloadDir }}/elasticsearch-1.4.4.tar.gz'
+  tags: monitoring
+- copy: src=/tmp/influxdb_latest_amd64.deb dest='{{ downloadDir }}/influxdb_latest_amd64.deb'
+  tags: monitoring
+
+- command: tar xzf {{ downloadDir }}/grafana-1.9.1.tar.gz chdir=/tmp creates=/tmp/grafana-1.9.1
+  tags: monitoring
+- command: tar xzf {{ downloadDir }}/elasticsearch-1.4.4.tar.gz chdir=/tmp creates=/tmp/elasticsearch-1.4.4
+  tags: monitoring
+
+- command: mv /tmp/grafana-1.9.1 /opt/grafana creates=/opt/grafana
+  sudo: true
+  tags: monitoring
+
+- command: mv /tmp/elasticsearch-1.4.4 /opt/elasticsearch creates=/opt/elasticsearch
+  sudo: true
+  tags: monitoring
+
+- apt: deb={{ downloadDir }}/influxdb_latest_amd64.deb 
+  sudo: true
+  tags: monitoring
+
+
+- copy: src=influxdb.toml dest=/opt/influxdb/shared/config.toml
+  sudo: true
+  tags: monitoring
+
+- file: owner=influxdb group=influxdb path={{ item }} state=touch
+  with_items:
+    - /var/log/influxdb.txt
+    - /opt/influxdb/shared/config.toml
+  sudo: true
+  tags: monitoring
+
+- file: owner=influxdb group=influxdb path={{ item }} state=directory
+  with_items:
+    - /var/log/influxdb.txt
+    - /var/lib/influxdb/
+    - /var/lib/influxdb/db
+    - /var/lib/influxdb/raft
+    - /var/lib/influxdb/wal
+  sudo: true
+  tags: monitoring
+
+- service: name=influxdb enabled=true state=restarted
+  sudo: true
+  tags: monitoring
