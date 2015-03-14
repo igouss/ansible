@@ -30,23 +30,26 @@
   sudo: true
   sudo_user: postgres
   tags: dns
+  notify: restart powerdns
 
 - command: psql -c "DROP USER powerdns;"
   sudo: true
   sudo_user: postgres
   ignore_errors: yes
   tags: dns
+  notify: restart powerdns
 
 - command: psql -c "CREATE USER powerdns WITH  encrypted password 'apple';"
   sudo: true
   sudo_user: postgres
   ignore_errors: yes
   tags: dns
-
+  notify: restart powerdns
 
 - copy: src=pdns.conf dest=/etc/powerdns/pdns.conf
   sudo: true
   tags: dns
+  notify: restart powerdns
 
 - copy: src=schema.pgsql.sql dest={{ downloadDir }}/schema.pgsql.sql
   tags: dns
@@ -54,27 +57,32 @@
 - copy: src=pdns.etc.default dest=/etc/default/pdns
   sudo: true
   tags: dns
+  notify: restart powerdns
 
 - command: psql -d powerdns -a -f {{ downloadDir }}/schema.pgsql.sql
   sudo: true
   sudo_user: postgres
   ignore_errors: yes
   tags: dns
+  notify: restart powerdns
 
 - command: psql -c "ALTER DATABASE powerdns OWNER TO powerdns;"
   sudo: true
   sudo_user: postgres
   ignore_errors: yes
   tags: dns
+  notify: restart powerdns
 
 - command: psql -c "GRANT ALL PRIVILEGES ON DATABASE powerdns to powerdns;"
   sudo: true
   sudo_user: postgres
   ignore_errors: yes
   tags: dns
+  notify: restart powerdns
 
 - command: psql -c "GRANT ALL ON comments, comments_id_seq, cryptokeys, cryptokeys_id_seq, domainmetadata, domainmetadata_id_seq, domains, domains_id_seq, records, records_id_seq, supermasters, tsigkeys, tsigkeys_id_seq TO powerdns;" powerdns
   sudo: true
   sudo_user: postgres
   ignore_errors: yes
   tags: dns
+  notify: restart powerdns
