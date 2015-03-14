@@ -2,3 +2,6 @@
 - apt: name=nginx
   tags: web
   sudo: true
+
+- copy: src=default dest=/etc/nginx/sites-available/default
+  sudo: true
